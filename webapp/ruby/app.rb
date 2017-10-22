@@ -425,9 +425,10 @@ class App < Sinatra::Base
     messages
   end
 
-  # TODO: 中身定数にできる
+  CHARACTORS = ((('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a) * 20).freeze
   def random_string(n)
-    Array.new(20).map { (('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a).sample }.join
+    # Array.new(20).map { CHARACTORS.sample }.join
+    CHARACTORS.shuffle.first(20).join
   end
 
   # user レコードの作成
