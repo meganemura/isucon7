@@ -151,8 +151,6 @@ class App < Sinatra::Base
       return 403
     end
 
-    sleep 1.0
-
     rows = db.query('SELECT id FROM channel').to_a
     channel_ids = rows.map { |row| row['id'] }
 
@@ -241,7 +239,7 @@ class App < Sinatra::Base
     @self_profile = user['id'] == @user['id']
     erb :profile
   end
-  
+
   get '/add_channel' do
     if user.nil?
       return redirect '/login', 303
