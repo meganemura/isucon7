@@ -2,6 +2,7 @@ require 'digest/sha1'
 require 'mysql2'
 require 'sinatra/base'
 require 'redis'
+require 'json'
 
 class App < Sinatra::Base
   configure do
@@ -19,18 +20,26 @@ class App < Sinatra::Base
 
   helpers do
     def user
-      return @_user unless @_user.nil?
-
+      # return @_user unless @_user.nil?
       user_id = session[:user_id]
       return nil if user_id.nil?
 
-      @_user = db_get_user(user_id)
-      if @_user.nil?
+      cached = redis.get("/users/#{user_id}")
+      return JSON.parse(cached) unless cached.nil?
+
+      # @_user = db_get_user(user_id)
+      statement = db.prepare('SELECT * FROM user WHERE id = ?')
+      u = statement.execute(user_id).first
+      statement.close
+
+      if u.nil?
         params[:user_id] = nil
         return nil
       end
 
-      @_user
+      redis.set("/users/#{user_id}", JSON.dump(u))
+      u
+      # @_user
     end
   end
 
