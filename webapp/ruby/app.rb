@@ -87,13 +87,19 @@ class App < Sinatra::Base
   post '/login' do
     # キャッシュするぞい
     name = params[:name]
+    u = authenticated_user(params[:name], params[:password])
+    return 403 unless u
+    session[:user_id] = u['id']
+    redirect '/', 303
+  end
+
+  def authenticated_user(name, password)
     statement = db.prepare('SELECT * FROM user WHERE name = ?')
     row = statement.execute(name).first
-    if row.nil? || row['password'] != Digest::SHA1.hexdigest(row['salt'] + params[:password])
-      return 403
+    if row.nil? || row['password'] != Digest::SHA1.hexdigest(row['salt'] + password)
+      return nil
     end
-    session[:user_id] = row['id']
-    redirect '/', 303
+    row
   end
 
   get '/logout' do
