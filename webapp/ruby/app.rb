@@ -350,6 +350,19 @@ class App < Sinatra::Base
     404
   end
 
+  get '/icons/dump_all' do
+    statement = db.prepare('SELECT * FROM image')
+    rows = statement.execute(file_name)
+    statement.close
+    rows.each do |row|
+      # /home/isucon/isubata/webapp/public
+      File.open("/home/isucon/isubata/webapp/public/icons/#{row['name']}", "w") do |file|
+        file.print(row['data'])
+      end
+    end
+    200
+  end
+
   private
 
   def redis
