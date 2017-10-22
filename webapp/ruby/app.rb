@@ -104,6 +104,9 @@ class App < Sinatra::Base
       raise e
     end
     session[:user_id] = user_id
+    session[:name] = name
+    session[:display_name] = name
+    session[:avatar_icon] = 'default.png'
     redirect '/', 303
   end
 
@@ -117,6 +120,9 @@ class App < Sinatra::Base
     u = authenticated_user(params[:name], params[:password])
     return 403 unless u
     session[:user_id] = u['id']
+    session[:name] = u['name']
+    session[:display_name] = u['display_name']
+    session[:avatar_icon] = u['avatar_icon']
     redirect '/', 303
   end
 
@@ -427,6 +433,7 @@ class App < Sinatra::Base
       statement = db.prepare('UPDATE user SET display_name = ? WHERE id = ?')
       statement.execute(display_name, session[:user_id])
       statement.close
+      session[:avatar_icon] = u['avatar_icon']
     end
 
     redis.set("/users/#{session[:user_id]}", nil)

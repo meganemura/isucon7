@@ -24,7 +24,7 @@
         <% end %>
         <% if session[:user_id] %>
           <li class="nav-item"><a href="/add_channel" class="nav-link">チャンネル追加</a></li>
-          <li class="nav-item"><a href="/profile/<%= user['name'] %>" class="nav-link"><%= user['display_name'] %></a></li>
+          <li class="nav-item"><a href="/profile/<%= session['name'] %>" class="nav-link"><%= session['display_name'] %></a></li>
           <li class="nav-item"><a href="/logout" class="nav-link">ログアウト</a></li>
         <% else %>
           <li><a href="/register" class="nav-link">新規登録</a></li>
