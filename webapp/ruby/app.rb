@@ -95,7 +95,9 @@ class App < Sinatra::Base
 
   def authenticated_user(name, password)
     key = "user/#{name}"
-    return cached if cached = redis.get(key)
+    if cached = redis.get(key)
+      return cached
+    end
 
     statement = db.prepare('SELECT * FROM user WHERE name = ?')
     row = statement.execute(name).first
