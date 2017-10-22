@@ -87,13 +87,25 @@ class App < Sinatra::Base
   post '/login' do
     # キャッシュするぞい
     name = params[:name]
+    u = authenticated_user(params[:name], params[:password])
+    return 403 unless u
+    session[:user_id] = u['id']
+    redirect '/', 303
+  end
+
+  def authenticated_user(name, password)
+    key = "user/#{name}"
+    return cached if cached = redis.get(key)
+
     statement = db.prepare('SELECT * FROM user WHERE name = ?')
     row = statement.execute(name).first
-    if row.nil? || row['password'] != Digest::SHA1.hexdigest(row['salt'] + params[:password])
-      return 403
+    if row.nil? || row['password'] != Digest::SHA1.hexdigest(row['salt'] + password)
+      return nil
     end
-    session[:user_id] = row['id']
-    redirect '/', 303
+
+    redis.set(key, row)
+
+    row
   end
 
   get '/logout' do
@@ -348,7 +360,6 @@ class App < Sinatra::Base
       port: ENV.fetch('ISUBATA_REDIS_PORT') { '6379' },
       db: ENV.fetch('ISUBATA_REDIS_DB') { 1 },
     )
-    @redis_client.query('SET SESSION sql_mode=\'TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY\'')
     @redis_client
   end
 
@@ -381,10 +392,12 @@ class App < Sinatra::Base
     messages
   end
 
+  # TODO: 中身定数にできる
   def random_string(n)
     Array.new(20).map { (('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a).sample }.join
   end
 
+  # user レコードの作成
   def register(user, password)
     salt = random_string(20)
     pass_digest = Digest::SHA1.hexdigest(salt + password)
