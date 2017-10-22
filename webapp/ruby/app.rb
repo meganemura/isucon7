@@ -7,7 +7,8 @@ require 'json'
 class App < Sinatra::Base
   configure do
     set :session_secret, 'tonymoris'
-    set :public_folder, File.expand_path('../../public', __FILE__)
+    set :static, false
+    # set :public_folder, File.expand_path('../../public', __FILE__)
     set :avatar_max_size, 1 * 1024 * 1024
 
     enable :sessions
