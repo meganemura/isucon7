@@ -143,7 +143,7 @@ class App < Sinatra::Base
 
     channel_id = params[:channel_id].to_i
     last_message_id = params[:last_message_id].to_i
-    statement = db.prepare('SELECT id, user_id, created_at, content FROM message WHERE id > ? AND channel_id = ? ORDER BY id DESC LIMIT 100')
+    statement = db.prepare('SELECT id, user_id, created_at, content FROM message WHERE id > ? AND channel_id = ? ORDER BY id LIMIT 100')
     rows = statement.execute(last_message_id, channel_id).to_a
     statement.close
 
@@ -177,7 +177,7 @@ class App < Sinatra::Base
     # end
     # response.reverse!
 
-    response = rows.reverse.map do |row|
+    response = rows.map do |row|
       {
         'id': row['id'],
         'user': users.find { |u| u['id'] == row['user_id'] },
@@ -197,6 +197,7 @@ class App < Sinatra::Base
     content_type :json
     response.to_json
   end
+
 
   get '/fetch' do
     user_id = session[:user_id]
