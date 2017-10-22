@@ -1,7 +1,7 @@
 <div class="well"><%= @description %></div>
 <div id="timeline"></div>
 
-<% if user %>
+<% if session[:user_id] %>
 <div class="row">
   <div class="col-sm-9 col-md-9" id="chatbox-frame">
     <div class="input-group chatbox">

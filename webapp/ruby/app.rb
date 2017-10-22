@@ -78,7 +78,7 @@ class App < Sinatra::Base
   end
 
   get '/channel/:channel_id' do
-    if user.nil?
+    if session[:user_id].nil?
       return redirect '/login', 303
     end
 
@@ -148,7 +148,8 @@ class App < Sinatra::Base
     user_id = session[:user_id]
     message = params[:message]
     channel_id = params[:channel_id]
-    if user_id.nil? || message.nil? || channel_id.nil? || user.nil?
+    # if user_id.nil? || message.nil? || channel_id.nil? || user.nil?
+    if user_id.nil? || message.nil? || channel_id.nil?
       return 403
     end
     db_add_message(channel_id.to_i, user_id, message)
@@ -267,7 +268,7 @@ class App < Sinatra::Base
   end
 
   get '/history/:channel_id' do
-    if user.nil?
+    if session[:user_id].nil?
       return redirect '/login', 303
     end
 
@@ -327,7 +328,7 @@ class App < Sinatra::Base
   end
 
   get '/profile/:user_name' do
-    if user.nil?
+    if session[:user_id].nil?
       return redirect '/login', 303
     end
 
@@ -342,12 +343,12 @@ class App < Sinatra::Base
       return 404
     end
 
-    @self_profile = user['id'] == @user['id']
+    @self_profile = session[:user_id] == @user['id']
     erb :profile
   end
 
   get '/add_channel' do
-    if user.nil?
+    if session[:user_id].nil?
       return redirect '/login', 303
     end
 
@@ -356,7 +357,7 @@ class App < Sinatra::Base
   end
 
   post '/add_channel' do
-    if user.nil?
+    if session[:user_id].nil?
       return redirect '/login', 303
     end
 
@@ -373,11 +374,11 @@ class App < Sinatra::Base
   end
 
   post '/profile' do
-    if user.nil?
+    if session[:user_id].nil?
       return redirect '/login', 303
     end
 
-    if user.nil?
+    if session[:user_id].nil?
       return 403
     end
 
@@ -418,17 +419,17 @@ class App < Sinatra::Base
       IO.popen("/home/isucon/isubata/webapp/ruby/script/sync.sh #{avatar_name} &")
 
       statement = db.prepare('UPDATE user SET avatar_icon = ? WHERE id = ?')
-      statement.execute(avatar_name, user['id'])
+      statement.execute(avatar_name, session[:user_id])
       statement.close
     end
 
     if !display_name.nil? || !display_name.empty?
       statement = db.prepare('UPDATE user SET display_name = ? WHERE id = ?')
-      statement.execute(display_name, user['id'])
+      statement.execute(display_name, session[:user_id])
       statement.close
     end
 
-    redis.set("/users/#{user['id']}", nil)
+    redis.set("/users/#{session[:user_id]}", nil)
 
     redirect '/', 303
   end
