@@ -183,6 +183,11 @@ class App < Sinatra::Base
       return 403
     end
 
+    latest_message = db.query('select created_at from message order by created_at desc limit 1').first
+    key = "/fetch/#{latest_message['created_at'].strftime('%Y%m%d%H%M%S')}"
+    cached = redis.get(key)
+    return cached if (cached.nil?.! && cached.size > 0)
+
     channel_ids = db.query('SELECT id FROM channel').map { |row| row['id'] }
 
     statement = db.prepare("SELECT message_id, channel_id FROM haveread WHERE user_id = ? AND channel_id IN (#{channel_ids.join(',')})")
@@ -207,6 +212,9 @@ class App < Sinatra::Base
       statement.close
       res << r
     end
+
+    redis.keys.select { |key| key.start_with?('/fetch/') }.each { |key| redis.set(key, nil) }
+    redis.set(key, res.to_json)
 
     content_type :json
     res.to_json
