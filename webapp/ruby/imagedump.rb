@@ -18,8 +18,9 @@ end
 
 
 
-statement = db.prepare('SELECT * FROM image')
-rows = statement.execute(file_name)
+# db.query("DELETE FROM image WHERE id > 1001")
+statement = db.prepare('SELECT * FROM image WHERE id > 1001')
+rows = statement.execute.to_a
 statement.close
 rows.each do |row|
   # /home/isucon/isubata/webapp/public
