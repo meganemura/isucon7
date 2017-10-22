@@ -3,6 +3,7 @@ require 'mysql2'
 require 'sinatra/base'
 require 'redis'
 require 'json'
+require 'oj'
 
 class App < Sinatra::Base
   configure do
@@ -254,7 +255,8 @@ class App < Sinatra::Base
     # redis.set(key, res.to_json)
 
     content_type :json
-    res.to_json
+    #res.to_json
+    Oj.dump(res)
   end
 
   get '/history/:channel_id' do
