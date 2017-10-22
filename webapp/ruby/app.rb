@@ -337,7 +337,7 @@ class App < Sinatra::Base
     end
 
     if !avatar_name.nil? && !avatar_data.nil?
-      statement = db.prepare('INSERT INTO image (name, data) VALUES (?, ?)')
+      statement = db.prepare('INSERT INTO image (name, data, updated_at) VALUES (?, ?, NOW())')
       statement.execute(avatar_name, avatar_data)
       statement.close
       statement = db.prepare('UPDATE user SET avatar_icon = ? WHERE id = ?')
@@ -361,6 +361,10 @@ class App < Sinatra::Base
     statement = db.prepare('SELECT * FROM image WHERE name = ?')
     row = statement.execute(file_name).first
     statement.close
+
+    last_modified row['upcated_at']
+    etag row.hash
+
     ext = file_name.include?('.') ? File.extname(file_name) : ''
     mime = ext2mime(ext)
     if !row.nil? && !mime.empty?
