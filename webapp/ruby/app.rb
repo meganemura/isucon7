@@ -1,6 +1,7 @@
 require 'digest/sha1'
 require 'mysql2'
 require 'sinatra/base'
+require 'redis'
 
 class App < Sinatra::Base
   configure do
@@ -336,6 +337,18 @@ class App < Sinatra::Base
   end
 
   private
+
+  def redis
+    return @redis_client if defined?(@redis_client)
+
+    @redis_client = Redis.new(
+      host: ENV.fetch('ISUBATA_REDIS_HOST') { 'localhost' },
+      port: ENV.fetch('ISUBATA_REDIS_PORT') { '6379' },
+      db: ENV.fetch('ISUBATA_REDIS_DB') { 1 },
+    )
+    @redis_client.query('SET SESSION sql_mode=\'TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY\'')
+    @redis_client
+  end
 
   def db
     return @db_client if defined?(@db_client)
