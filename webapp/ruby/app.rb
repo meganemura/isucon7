@@ -384,6 +384,12 @@ class App < Sinatra::Base
       statement = db.prepare('INSERT INTO image (name, data, updated_at) VALUES (?, ?, NOW())')
       statement.execute(avatar_name, avatar_data)
       statement.close
+
+      ## ファイル書き込み
+      File.open("/home/isucon/isubata/webapp/public/icons/#{avatar_name}", "w") do |file|
+        file.print(avatar_data)
+      end
+
       statement = db.prepare('UPDATE user SET avatar_icon = ? WHERE id = ?')
       statement.execute(avatar_name, user['id'])
       statement.close
@@ -417,6 +423,12 @@ class App < Sinatra::Base
     ext = file_name.include?('.') ? File.extname(file_name) : ''
     mime = ext2mime(ext)
     if !row.nil? && !mime.empty?
+
+      ## ファイル書き込み
+      File.open("/home/isucon/isubata/webapp/public/icons/#{row['name']}", "w") do |file|
+        file.print(row['data'])
+      end
+
       content_type mime
       return row['data']
     end
