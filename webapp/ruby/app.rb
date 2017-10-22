@@ -2,6 +2,7 @@ require 'digest/sha1'
 require 'mysql2'
 require 'sinatra/base'
 require 'redis'
+require 'json'
 
 class App < Sinatra::Base
   configure do
@@ -95,7 +96,9 @@ class App < Sinatra::Base
 
   def authenticated_user(name, password)
     key = "user/#{name}"
-    return cached if cached = redis.get(key)
+    if cached_json = redis.get(key)
+      return JSON.parse(cached_json)
+    end
 
     statement = db.prepare('SELECT * FROM user WHERE name = ?')
     row = statement.execute(name).first
@@ -103,7 +106,7 @@ class App < Sinatra::Base
       return nil
     end
 
-    redis.set(key, row)
+    redis.set(key, JSON.generate(row))
 
     row
   end
