@@ -25,7 +25,7 @@ class App < Sinatra::Base
       return nil if user_id.nil?
 
       cached = redis.get("/users/#{user_id}")
-      return JSON.parse(cached) unless cached.nil?
+      return JSON.parse(cached) if (cached.nil?.! && cached.size > 0)
 
       # @_user = db_get_user(user_id)
       statement = db.prepare('SELECT * FROM user WHERE id = ?')
