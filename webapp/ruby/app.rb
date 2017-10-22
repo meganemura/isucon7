@@ -1,6 +1,7 @@
 require 'digest/sha1'
 require 'mysql2'
 require 'sinatra/base'
+require 'redis'
 
 class App < Sinatra::Base
   configure do
@@ -84,6 +85,7 @@ class App < Sinatra::Base
   end
 
   post '/login' do
+    # キャッシュするぞい
     name = params[:name]
     statement = db.prepare('SELECT * FROM user WHERE name = ?')
     row = statement.execute(name).first
@@ -334,11 +336,23 @@ class App < Sinatra::Base
 
   private
 
+  def redis
+    return @redis_client if defined?(@redis_client)
+
+    @redis_client = Redis.new(
+      host: ENV.fetch('ISUBATA_REDIS_HOST') { 'localhost' },
+      port: ENV.fetch('ISUBATA_REDIS_PORT') { '6379' },
+      db: ENV.fetch('ISUBATA_REDIS_DB') { 1 },
+    )
+    @redis_client.query('SET SESSION sql_mode=\'TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY\'')
+    @redis_client
+  end
+
   def db
     return @db_client if defined?(@db_client)
 
     @db_client = Mysql2::Client.new(
-      host: ENV.fetch('ISUBATA_DB_HOST') { 'localhost' },
+      host: ENV.fetch('ISUBATA_DB_HOST') { '127.0.0.1' },
       port: ENV.fetch('ISUBATA_DB_PORT') { '3306' },
       username: ENV.fetch('ISUBATA_DB_USER') { 'root' },
       password: ENV.fetch('ISUBATA_DB_PASSWORD') { '' },
