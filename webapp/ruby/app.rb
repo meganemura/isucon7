@@ -176,19 +176,30 @@ class App < Sinatra::Base
               []
             end
 
-    response = []
-    rows.each do |row|
-      r = {}
-      r['id'] = row['id']
-      # statement = db.prepare('SELECT name, display_name, avatar_icon FROM user WHERE id = ?')
-      # r['user'] = statement.execute(row['user_id']).first
-      r['user'] = users.find { |u| u['id'] == row['user_id'] }
-      r['date'] = row['created_at'].strftime("%Y/%m/%d %H:%M:%S")
-      r['content'] = row['content']
-      response << r
-      # statement.close
+    # response = []
+    # rows.each do |row|
+    #   r = {}
+    #   r['id'] = row['id']
+    #   # statement = db.prepare('SELECT name, display_name, avatar_icon FROM user WHERE id = ?')
+    #   # r['user'] = statement.execute(row['user_id']).first
+    #   r['user'] = users.find { |u| u['id'] == row['user_id'] }
+
+    #   # TODO: MySQL 側でフォーマットする
+    #   r['date'] = row['created_at'].strftime("%Y/%m/%d %H:%M:%S")
+    #   r['content'] = row['content']
+    #   response << r
+    #   # statement.close
+    # end
+    # response.reverse!
+
+    response = rows.reverse.map do |row|
+      {
+        'id': row['id'],
+        'user': users.find { |u| u['id'] == row['user_id'] },
+        'date': row['created_at'].strftime("%Y/%m/%d %H:%M:%S"),
+        'content': row['content'],
+      }
     end
-    response.reverse!
 
     max_message_id = rows.empty? ? 0 : rows.map { |row| row['id'] }.max
     statement = db.prepare([
