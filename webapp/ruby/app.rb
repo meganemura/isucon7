@@ -84,6 +84,7 @@ class App < Sinatra::Base
   end
 
   post '/login' do
+    # キャッシュするぞい
     name = params[:name]
     statement = db.prepare('SELECT * FROM user WHERE name = ?')
     row = statement.execute(name).first
@@ -241,7 +242,7 @@ class App < Sinatra::Base
     @self_profile = user['id'] == @user['id']
     erb :profile
   end
-  
+
   get '/add_channel' do
     if user.nil?
       return redirect '/login', 303
