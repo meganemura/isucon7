@@ -148,7 +148,8 @@ class App < Sinatra::Base
     statement.close
 
     user_ids = rows.map { |r| r['user_id'] }.uniq
-    users = db.query("SELECT id, name, display_name, avatar_icon FROM user WHERE id IN (#{user_ids.join(',')})").to_a
+    joined_user_ids = user_ids.count > 0 ? user_ids.join(',') : "-1"
+    users = db.query("SELECT id, name, display_name, avatar_icon FROM user WHERE id IN (#{joined_user_ids})").to_a
 
     response = []
     rows.each do |row|
