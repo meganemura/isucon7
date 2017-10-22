@@ -358,7 +358,6 @@ class App < Sinatra::Base
       port: ENV.fetch('ISUBATA_REDIS_PORT') { '6379' },
       db: ENV.fetch('ISUBATA_REDIS_DB') { 1 },
     )
-    @redis_client.query('SET SESSION sql_mode=\'TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY\'')
     @redis_client
   end
 
