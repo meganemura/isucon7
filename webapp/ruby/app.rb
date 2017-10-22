@@ -296,13 +296,13 @@ class App < Sinatra::Base
     rows.each do |row|
       r = {}
       r['id'] = row['id']
-      statement = db.prepare('SELECT name, display_name, avatar_icon FROM user WHERE id = ?')
+      #statement = db.prepare('SELECT name, display_name, avatar_icon FROM user WHERE id = ?')
       # r['user'] = statement.execute(row['user_id']).first
       r['user'] = users.find { |u| u['id'] == row['user_id'] }
       r['date'] = row['created_at'].strftime("%Y/%m/%d %H:%M:%S")
       r['content'] = row['content']
       @messages << r
-      statement.close
+      #statement.close
     end
     @messages.reverse!
 
