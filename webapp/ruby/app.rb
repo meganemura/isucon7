@@ -417,7 +417,7 @@ class App < Sinatra::Base
     if !row.nil? && !mime.empty?
 
       ## ファイル書き込み
-      File.open("/home/isucon/isubata/webapp/public/icons/#{row['name']}", "w") do |file|
+      File.open("/home/isucon/isubata/webapp/public/icons/#{file_name}", "w") do |file|
         file.print(row['data'])
       end
 
