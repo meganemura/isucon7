@@ -94,11 +94,17 @@ class App < Sinatra::Base
   end
 
   def authenticated_user(name, password)
+    key = "user/#{name}"
+    return cached if cached = redis.get(key)
+
     statement = db.prepare('SELECT * FROM user WHERE name = ?')
     row = statement.execute(name).first
     if row.nil? || row['password'] != Digest::SHA1.hexdigest(row['salt'] + password)
       return nil
     end
+
+    redis.set(key, row)
+
     row
   end
 
@@ -385,10 +391,12 @@ class App < Sinatra::Base
     messages
   end
 
+  # TODO: 中身定数にできる
   def random_string(n)
     Array.new(20).map { (('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a).sample }.join
   end
 
+  # user レコードの作成
   def register(user, password)
     salt = random_string(20)
     pass_digest = Digest::SHA1.hexdigest(salt + password)
