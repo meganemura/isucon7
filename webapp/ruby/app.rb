@@ -143,7 +143,7 @@ class App < Sinatra::Base
 
     channel_id = params[:channel_id].to_i
     last_message_id = params[:last_message_id].to_i
-    statement = db.prepare('SELECT id, user_id, created_at, content FROM message WHERE id > ? AND channel_id = ? ORDER BY id DESC LIMIT 200')
+    statement = db.prepare('SELECT id, user_id, created_at, content FROM message WHERE id > ? AND channel_id = ? ORDER BY id DESC LIMIT 100')
     rows = statement.execute(last_message_id, channel_id).to_a
     statement.close
 
