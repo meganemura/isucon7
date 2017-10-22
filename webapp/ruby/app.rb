@@ -44,6 +44,15 @@ class App < Sinatra::Base
       u
       # @_user
     end
+
+    def fetch_channel_ids
+      cached = redis.get('/channel_ids')
+      return Oj.load(cached) if (cached.nil?.! && cached.size > 0)
+
+      ids = db.query('SELECT id FROM channel').map { |row| row['id'] }
+      redis.set('/channel_ids', Oj.dump(ids))
+      ids
+    end
   end
 
   get '/initialize' do
@@ -239,7 +248,8 @@ class App < Sinatra::Base
     # cached = redis.get(key)
     # return cached if (cached.nil?.! && cached.size > 0)
 
-    channel_ids = db.query('SELECT id FROM channel').map { |row| row['id'] }
+    # channel_ids = db.query('SELECT id FROM channel').map { |row| row['id'] }
+    channel_ids = fetch_channel_ids
 
     statement = db.prepare("SELECT message_id, channel_id FROM haveread WHERE user_id = ? AND channel_id IN (#{channel_ids.join(',')})")
     havereads = statement.execute(user_id).to_a
@@ -376,6 +386,7 @@ class App < Sinatra::Base
     statement.execute(name, description)
     channel_id = db.last_id
     statement.close
+    redis.set('/channel_ids', nil)
     redirect "/channel/#{channel_id}", 303
   end
 
