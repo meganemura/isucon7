@@ -202,12 +202,13 @@ class App < Sinatra::Base
     end
 
     max_message_id = rows.empty? ? 0 : rows.map { |row| row['id'] }.max
+    ts = Time.new
     statement = db.prepare([
       'INSERT INTO haveread (user_id, channel_id, message_id, updated_at, created_at) ',
-      'VALUES (?, ?, ?, NOW(), NOW()) ',
-      'ON DUPLICATE KEY UPDATE message_id = ?, updated_at = NOW()',
+      'VALUES (?, ?, ?, ?, ?) ',
+      'ON DUPLICATE KEY UPDATE message_id = ?, updated_at = ?',
     ].join)
-    statement.execute(user_id, channel_id, max_message_id, max_message_id)
+    statement.execute(user_id, channel_id, max_message_id, ts, ts, max_message_id, ts)
 
     content_type :json
     response.to_json
@@ -381,8 +382,8 @@ class App < Sinatra::Base
     end
 
     if !avatar_name.nil? && !avatar_data.nil?
-      statement = db.prepare('INSERT INTO image (name, data, updated_at) VALUES (?, ?, NOW())')
-      statement.execute(avatar_name, avatar_data)
+      statement = db.prepare('INSERT INTO image (name, data, updated_at) VALUES (?, ?, ?)')
+      statement.execute(avatar_name, avatar_data, Time.new)
       statement.close
 
       ## ファイル書き込み
@@ -412,7 +413,7 @@ class App < Sinatra::Base
     # statement = db.prepare('SELECT id, updated_at FROM image WHERE name = ?')
     # row = statement.execute(file_name).first
     # statement.close
-    # 
+    #
     # last_modified row['updated_at']
     # etag row.hash
 
