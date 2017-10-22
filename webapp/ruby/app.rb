@@ -358,12 +358,17 @@ class App < Sinatra::Base
 
   get '/icons/:file_name' do
     file_name = params[:file_name]
-    statement = db.prepare('SELECT * FROM image WHERE name = ?')
+
+    statement = db.prepare('SELECT id, updated_at FROM image WHERE name = ?')
     row = statement.execute(file_name).first
     statement.close
 
-    last_modified row['upcated_at']
+    last_modified row['updated_at']
     etag row.hash
+
+    statement = db.prepare('SELECT data FROM image WHERE name = ?')
+    row = statement.execute(file_name).first
+    statement.close
 
     ext = file_name.include?('.') ? File.extname(file_name) : ''
     mime = ext2mime(ext)
