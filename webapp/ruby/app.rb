@@ -146,7 +146,11 @@ class App < Sinatra::Base
     if user_id.nil? || message.nil? || channel_id.nil? || user.nil?
       return 403
     end
-    db_add_message(channel_id.to_i, user_id, message)
+    # db_add_message(channel_id.to_i, user_id, message)
+    cmd = "mysql -uisucon -pisucon -h db isubata -e 'INSERT INTO message (channel_id, user_id, content, created_at) VALUES (#{channel_id.to_i}, #{user_id}, #{message}, NOW())' &"
+    # MEMO: ローカルでやる場合はこっち
+    # cmd = "mysql -uroot isubata -e 'INSERT INTO message (channel_id, user_id, content, created_at) VALUES (#{channel_id.to_i}, #{user_id}, \"#{message}\", NOW())' &"
+    IO.popen(cmd)
     204
   end
 
