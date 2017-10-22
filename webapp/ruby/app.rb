@@ -26,7 +26,8 @@ class App < Sinatra::Base
       return nil if user_id.nil?
 
       cached = redis.get("/users/#{user_id}")
-      return JSON.parse(cached) if (cached.nil?.! && cached.size > 0)
+      #return JSON.parse(cached) if (cached.nil?.! && cached.size > 0)
+      return Oj.load(cached) if (cached.nil?.! && cached.size > 0)
 
       # @_user = db_get_user(user_id)
       statement = db.prepare('SELECT * FROM user WHERE id = ?')
@@ -38,7 +39,8 @@ class App < Sinatra::Base
         return nil
       end
 
-      redis.set("/users/#{user_id}", JSON.dump(u))
+      #redis.set("/users/#{user_id}", JSON.dump(u))
+      redis.set("/users/#{user_id}", Oj.dump(u))
       u
       # @_user
     end
@@ -121,7 +123,8 @@ class App < Sinatra::Base
   def authenticated_user(name, password)
     key = "user/#{name}"
     if cached_json = redis.get(key)
-      return JSON.parse(cached_json)
+      #return JSON.parse(cached_json)
+      return Oj.load(cached_json)
     end
 
     statement = db.prepare('SELECT * FROM user WHERE name = ?')
@@ -130,7 +133,8 @@ class App < Sinatra::Base
       return nil
     end
 
-    redis.set(key, JSON.generate(row))
+    #redis.set(key, JSON.generate(row))
+    redis.set(key, Oj.dump(row))
 
     row
   end
