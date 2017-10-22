@@ -54,7 +54,7 @@ class App < Sinatra::Base
     # 画像削除
     `rm -Rf /home/isucon/isubata/webapp/public/icons/*.*`
     # 画像ファイルの生成
-    statement = db.prepare('SELECT distinct(name) as name FROM image')
+    statement = db.prepare('SELECT distinct(name) as name, data FROM image')
     rows = statement.execute.to_a
     statement.close
     rows.each do |row|
