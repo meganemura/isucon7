@@ -62,6 +62,8 @@ class App < Sinatra::Base
       File.open("/home/isucon/isubata/webapp/public/icons/#{row['name']}", "w") do |file|
         file.print(row['data'])
       end
+      # redisにバイナリ入れる
+      redis.set("icon-#{row['name']}", row['data'])
     end
 
     204
@@ -390,6 +392,9 @@ class App < Sinatra::Base
         file.print(avatar_data)
       end
 
+      # redisにバイナリ入れる
+      redis.set("icon-#{avatar_name}", avatar_data)
+
       statement = db.prepare('UPDATE user SET avatar_icon = ? WHERE id = ?')
       statement.execute(avatar_name, user['id'])
       statement.close
@@ -416,22 +421,35 @@ class App < Sinatra::Base
     last_modified row['updated_at']
     etag row.hash
 
-    statement = db.prepare('SELECT data FROM image WHERE name = ?')
-    row = statement.execute(file_name).first
-    statement.close
-
+    # redis から返却
+    data = redis.get("icon-#{file_name}")
     ext = file_name.include?('.') ? File.extname(file_name) : ''
     mime = ext2mime(ext)
-    if !row.nil? && !mime.empty?
-
-      ## ファイル書き込み
-      File.open("/home/isucon/isubata/webapp/public/icons/#{file_name}", "w") do |file|
-        file.print(row['data'])
-      end
-
+    if !data.nil? && !mime.empty?
       content_type mime
-      return row['data']
+      return data
     end
+
+
+    # statement = db.prepare('SELECT data FROM image WHERE name = ?')
+    # row = statement.execute(file_name).first
+    # statement.close
+
+    # ext = file_name.include?('.') ? File.extname(file_name) : ''
+    # mime = ext2mime(ext)
+    # if !row.nil? && !mime.empty?
+
+    #   ## ファイル書き込み
+    #   File.open("/home/isucon/isubata/webapp/public/icons/#{file_name}", "w") do |file|
+    #     file.print(row['data'])
+    #   end
+
+    #   # redisにバイナリ入れる
+    #   redis.set("icon-#{file_name}", row['data'])
+
+    #   content_type mime
+    #   return row['data']
+    # end
     404
   end
 
