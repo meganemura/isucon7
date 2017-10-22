@@ -31,7 +31,7 @@ function get_channel_id() {
             return ar[i + 1]
         }
     }
-    // console.log(ar)
+    console.log(ar)
     return "1"
 }
 
@@ -50,12 +50,12 @@ function get_message(callback) {
     msg_id = last_message_id
 
     if (channel_id == null) {
-        // console.error("channel_id is null")
+        console.error("channel_id is null")
         return
     }
 
     if (isNaN(msg_id)) {
-        // console.error("last_message_id is NaN")
+        console.error("last_message_id is NaN")
         return
     }
 
@@ -77,7 +77,7 @@ function get_message(callback) {
 function post_message(msg) {
     channel_id = get_channel_id()
     if (channel_id == null) {
-        // console.error("channel_id is null")
+        console.error("channel_id is null")
         return
     }
 
@@ -123,7 +123,7 @@ $(document).ready(function() {
             if (loading) return
             loading = true
             fetch_unread(function(json) {
-                // console.log(json)
+                console.log(json)
                 channel_id = get_channel_id()
                 updated = false
                 json.forEach(function(channel) {
