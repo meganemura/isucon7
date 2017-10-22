@@ -274,8 +274,14 @@ class App < Sinatra::Base
     @page = @page.to_i
 
     n = 20
-    statement = db.prepare('SELECT * FROM message WHERE channel_id = ? ORDER BY id DESC LIMIT ? OFFSET ?')
-    rows = statement.execute(@channel_id, n, (@page - 1) * n).to_a
+    #statement = db.prepare('SELECT * FROM message WHERE channel_id = ? ORDER BY id DESC LIMIT ? OFFSET ?')
+    #rows = statement.execute(@channel_id, n, (@page - 1) * n).to_a
+
+    statement = db.prepare('SELECT * FROM message WHERE channel_id = ? AND id BETWEEN ? AND ? ORDER BY id DESC')
+    limit = n
+    offset = (@page - 1) * n
+    rows = statement.execute(@channel_id, offset - 1, offset + limit).to_a
+
     statement.close
 
     user_ids = rows.map { |row| row['user_id'] }.uniq
