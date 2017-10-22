@@ -147,9 +147,19 @@ class App < Sinatra::Base
     rows = statement.execute(last_message_id, channel_id).to_a
     statement.close
 
+    # user_ids = rows.map { |r| r['user_id'] }.uniq
+    # joined_user_ids = user_ids.count > 0 ? user_ids.join(',') : "-1"
+    # users = db.query("SELECT id, name, display_name, avatar_icon FROM user WHERE id IN (#{joined_user_ids})").to_a
+
+    # user_ids が空なら users も空
     user_ids = rows.map { |r| r['user_id'] }.uniq
-    joined_user_ids = user_ids.count > 0 ? user_ids.join(',') : "-1"
-    users = db.query("SELECT id, name, display_name, avatar_icon FROM user WHERE id IN (#{joined_user_ids})").to_a
+    joined_user_ids = user_ids.count > 0 ? user_ids.join(',') : nil
+    users = if user_ids.count > 0
+              joined_user_ids = user_ids.join(',')
+              db.query("SELECT id, name, display_name, avatar_icon FROM user WHERE id IN (#{joined_user_ids})").to_a
+            else
+              []
+            end
 
     response = []
     rows.each do |row|
