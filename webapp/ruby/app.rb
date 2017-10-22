@@ -227,10 +227,10 @@ class App < Sinatra::Base
 
     content_type :json
 
-    latest_message = db.query('select created_at from message order by created_at desc limit 1').first
-    key = "/fetch/#{user_id}/#{latest_message['created_at'].strftime('%Y%m%d%H%M%S')}"
-    cached = redis.get(key)
-    return cached if (cached.nil?.! && cached.size > 0)
+    # latest_message = db.query('select created_at from message order by created_at desc limit 1').first
+    # key = "/fetch/#{user_id}/#{latest_message['created_at'].strftime('%Y%m%d%H%M%S')}"
+    # cached = redis.get(key)
+    # return cached if (cached.nil?.! && cached.size > 0)
 
     channel_ids = db.query('SELECT id FROM channel').map { |row| row['id'] }
 
@@ -259,8 +259,8 @@ class App < Sinatra::Base
 
     dumped = Oj.dump(res)
 
-    redis.keys.select { |key| key.start_with?('/fetch/') }.each { |key| redis.set(key, nil) }
-    redis.set(key, dumped)
+    # redis.keys.select { |key| key.start_with?('/fetch/') }.each { |key| redis.set(key, nil) }
+    # redis.set(key, dumped)
 
     #res.to_json
     dumped
