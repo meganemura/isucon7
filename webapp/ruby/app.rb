@@ -49,6 +49,21 @@ class App < Sinatra::Base
     db.query("DELETE FROM channel WHERE id > 10")
     db.query("DELETE FROM message WHERE id > 10000")
     db.query("DELETE FROM haveread")
+
+
+    # 画像削除
+    `rm -Rf /home/isucon/isubata/webapp/public/icons/*.*`
+    # 画像ファイルの生成
+    statement = db.prepare('SELECT distinct(name) as name FROM image')
+    rows = statement.execute.to_a
+    statement.close
+    rows.each do |row|
+      # /home/isucon/isubata/webapp/public
+      File.open("/home/isucon/isubata/webapp/public/icons/#{row['name']}", "w") do |file|
+        file.print(row['data'])
+      end
+    end
+
     204
   end
 
