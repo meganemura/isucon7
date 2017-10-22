@@ -382,14 +382,15 @@ class App < Sinatra::Base
     end
 
     if !avatar_name.nil? && !avatar_data.nil?
-      statement = db.prepare('INSERT INTO image (name, data, updated_at) VALUES (?, ?, ?)')
-      statement.execute(avatar_name, avatar_data, Time.new)
-      statement.close
+      #statement = db.prepare('INSERT INTO image (name, data, updated_at) VALUES (?, ?, ?)')
+      #statement.execute(avatar_name, avatar_data, Time.new)
+      #statement.close
 
       ## ファイル書き込み
       File.open("/home/isucon/isubata/webapp/public/icons/#{avatar_name}", "w") do |file|
         file.print(avatar_data)
       end
+      IO.popen("/home/isucon/isubata/webapp/ruby/script/sync.sh #{avatar_name} &")
 
       statement = db.prepare('UPDATE user SET avatar_icon = ? WHERE id = ?')
       statement.execute(avatar_name, user['id'])
@@ -429,6 +430,7 @@ class App < Sinatra::Base
       File.open("/home/isucon/isubata/webapp/public/icons/#{file_name}", "w") do |file|
         file.print(row['data'])
       end
+
 
       content_type mime
       return row['data']
