@@ -124,6 +124,7 @@ class App < Sinatra::Base
   end
 
   post '/login' do
+    redirect '/', 303 if session[:user_id]
     # キャッシュするぞい
     name = params[:name]
     u = authenticated_user(params[:name], params[:password])
