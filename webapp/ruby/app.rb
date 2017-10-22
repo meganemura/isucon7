@@ -427,13 +427,13 @@ class App < Sinatra::Base
       statement = db.prepare('UPDATE user SET avatar_icon = ? WHERE id = ?')
       statement.execute(avatar_name, session[:user_id])
       statement.close
+      session[:avatar_icon] = avatar_name
     end
 
     if !display_name.nil? || !display_name.empty?
       statement = db.prepare('UPDATE user SET display_name = ? WHERE id = ?')
       statement.execute(display_name, session[:user_id])
       statement.close
-      session[:avatar_icon] = u['avatar_icon']
     end
 
     redis.set("/users/#{session[:user_id]}", nil)
