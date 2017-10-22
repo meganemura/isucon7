@@ -1,0 +1,10 @@
+version: '2.1'
+services:
+  db:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
