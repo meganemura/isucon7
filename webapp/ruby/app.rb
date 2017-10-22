@@ -292,19 +292,28 @@ class App < Sinatra::Base
             end
 
 
-    @messages = []
-    rows.each do |row|
-      r = {}
-      r['id'] = row['id']
-      #statement = db.prepare('SELECT name, display_name, avatar_icon FROM user WHERE id = ?')
-      # r['user'] = statement.execute(row['user_id']).first
-      r['user'] = users.find { |u| u['id'] == row['user_id'] }
-      r['date'] = row['created_at'].strftime("%Y/%m/%d %H:%M:%S")
-      r['content'] = row['content']
-      @messages << r
-      #statement.close
+    #@messages = []
+    #rows.each do |row|
+    #  r = {}
+    #  r['id'] = row['id']
+    #  #statement = db.prepare('SELECT name, display_name, avatar_icon FROM user WHERE id = ?')
+    #  # r['user'] = statement.execute(row['user_id']).first
+    #  r['user'] = users.find { |u| u['id'] == row['user_id'] }
+    #  r['date'] = row['created_at'].strftime("%Y/%m/%d %H:%M:%S")
+    #  r['content'] = row['content']
+    #  @messages << r
+    #  #statement.close
+    #end
+    #@messages.reverse!
+
+    @messages = rows.reverse.map do |row|
+      {
+        'id': row['id'],
+        'user': users.find { |u| u['id'] == row['user_id'] },
+        'date': row['created_at'].strftime("%Y/%m/%d %H:%M:%S"),
+        'content': row['content'],
+      }
     end
-    @messages.reverse!
 
     statement = db.prepare('SELECT COUNT(*) as cnt FROM message WHERE channel_id = ?')
     cnt = statement.execute(@channel_id).first['cnt'].to_f
