@@ -415,6 +415,12 @@ class App < Sinatra::Base
     ext = file_name.include?('.') ? File.extname(file_name) : ''
     mime = ext2mime(ext)
     if !row.nil? && !mime.empty?
+
+      ## ファイル書き込み
+      File.open("/home/isucon/isubata/webapp/public/icons/#{row['name']}", "w") do |file|
+        file.print(row['data'])
+      end
+
       content_type mime
       return row['data']
     end
