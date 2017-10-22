@@ -350,6 +350,8 @@ class App < Sinatra::Base
       statement.close
     end
 
+    redis.set("/users/#{user['id']}", nil)
+
     redirect '/', 303
   end
 
