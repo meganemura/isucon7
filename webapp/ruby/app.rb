@@ -424,7 +424,7 @@ class App < Sinatra::Base
     redirect '/', 303
   end
 
-  get '/icons/:file_name' do
+  get '/xxx/icons/:file_name' do
     file_name = params[:file_name]
 
     # statement = db.prepare('SELECT id, updated_at FROM image WHERE name = ?')
@@ -452,19 +452,6 @@ class App < Sinatra::Base
       return row['data']
     end
     404
-  end
-
-  get '/icons/dump_all' do
-    statement = db.prepare('SELECT * FROM image')
-    rows = statement.execute(file_name)
-    statement.close
-    rows.each do |row|
-      # /home/isucon/isubata/webapp/public
-      File.open("/home/isucon/isubata/webapp/public/icons/#{row['name']}", "w") do |file|
-        file.print(row['data'])
-      end
-    end
-    200
   end
 
   private
