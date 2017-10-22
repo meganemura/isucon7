@@ -156,7 +156,7 @@ class App < Sinatra::Base
     channel_ids = db.query('SELECT id FROM channel').map { |row| row['id'] }
 
     statement = db.prepare("SELECT message_id, channel_id FROM haveread WHERE user_id = ? AND channel_id IN (#{channel_ids.join(',')})")
-    havereads = statement.execute(user_id)
+    havereads = statement.execute(user_id).to_a
     statement.close
 
     res = []
